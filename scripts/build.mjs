@@ -1,7 +1,13 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
+import { mkdir, writeFile } from "node:fs/promises";
+import { EXPECTED, loadLedger } from "./ledger.mjs";
 
 const pages = process.env.GITHUB_PAGES === "true";
-const html = await readFile(new URL("../index.html", import.meta.url), "utf8");
+const html = await loadLedger();
+const digest = createHash("sha256").update(html).digest("hex");
+if (digest !== EXPECTED) {
+  throw new Error(`Ledger digest ${digest} does not match the Sentinel book`);
+}
 
 await mkdir(new URL("../out/", import.meta.url), { recursive: true });
 await writeFile(new URL("../out/index.html", import.meta.url), html);
