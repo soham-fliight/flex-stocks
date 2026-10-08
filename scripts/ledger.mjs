@@ -1,14 +1,13 @@
 import { readFile, readdir } from "node:fs/promises";
+import { inflateSync } from "node:zlib";
 
 const EXPECTED = "e5ceaf716f9bc3098648768e799fd516d89bbac960552a491eb0ac39cca593a5";
 
-async function fromParts() {
-  const partsDir = new URL("../parts/", import.meta.url);
-  const names = (await readdir(partsDir)).filter((name) => name.endsWith(".b64")).sort();
-  const b64 = (await Promise.all(names.map((name) => readFile(new URL(name, partsDir), "utf8"))))
-    .join("")
-    .replace(/\s+/g, "");
-  return Buffer.from(b64, "base64").toString("utf8");
+async function fromZlib() {
+  const partsDir = new URL("../parts/zz/", import.meta.url);
+  const names = (await readdir(partsDir)).filter((name) => name.endsWith(".zz")).sort();
+  const packed = (await Promise.all(names.map((name) => readFile(new URL(name, partsDir), "utf8")))).join("");
+  return inflateSync(Buffer.from(packed.replace(/\s+/g, ""), "base64")).toString("utf8");
 }
 
 export async function loadLedger() {
@@ -18,9 +17,9 @@ export async function loadLedger() {
       return html;
     }
   } catch {
-    // The Pages checkout may only have the encoded parts.
+    // The Pages checkout keeps the book in parts/zz.
   }
-  return fromParts();
+  return fromZlib();
 }
 
 export { EXPECTED };
