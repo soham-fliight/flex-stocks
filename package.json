@@ -1,0 +1,9 @@
+{
+  "name": "flex-stocks",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --test test/page.test.mjs"
+  }
+}
